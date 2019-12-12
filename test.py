@@ -28,13 +28,10 @@ while running:
                 ns, reward, gof = game.step(2)
             elif event.key == pygame.K_RIGHT:
                 ns, reward, gof = game.step(3)
-            else:
-                ns, reward, gof = game.step(4)
         else:
             ns, reward, gof = game.step(4)
 
         if gof:
             running = False
-
-    print("Reward : ",reward)
+    print("Reward : ",reward, "State : ", ns)
 
