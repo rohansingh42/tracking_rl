@@ -15,6 +15,10 @@ import glob, os
 import argparse
 from collections import deque
 
+import pygame
+from Game import Game
+pygame.init()
+
 # Load game env
 # env = gameEnv()
 # curr_state = env.reset()
@@ -127,6 +131,7 @@ for i in range(0, MEMORY_SIZE):
 print('Populated with %d Episodes'%(len(mem.memory)))
 
 ###################################################################
+game = Game()
 # Start algorithm
 epsilon = INITIAL_EPSILON
 loss_stat = []

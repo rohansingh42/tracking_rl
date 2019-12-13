@@ -287,8 +287,9 @@ class Game:
 		self.visibility8()
 		reward = self.reward()
 
-		if pygame.sprite.collide_rect(self.agent1, self.target1)
+		if pygame.sprite.collide_rect(self.agent1, self.target1):
 			gameSuccessFlag = True
+			reward = 100
 
 		# if reward >= 0:
 		# 	self.stepCount += 1

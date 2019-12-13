@@ -80,7 +80,7 @@ print("\nAction space")
 if str(train) == 'False':
     epsilon = 0.0
 else:
-    epsilon = 0.3
+    epsilon = 1.0
 
 discount_factor = 0.99
 learning_rate = 0.001
@@ -99,7 +99,7 @@ if train == 'False':
     nn_model.eval()
 else :
     nn_model.train()
-    # input('a')
+    input('a')
     
 # Performance metric
 recent_reward=[]
@@ -193,7 +193,7 @@ for episode in trange(NUM_EPISODES):
                 # adjust learning rate as model converges
                 if train:
                     # if episode%200 == 0:
-                    scheduler.step()
+                    # schedulser.step()
                     SummaryWriter.add_scalar('data/learning_rate',optimizer.param_groups[0]['lr'], episode)
 
                 n_successes += 1
