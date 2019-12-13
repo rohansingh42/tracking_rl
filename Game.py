@@ -287,9 +287,8 @@ class Game:
 		self.visibility8()
 		reward = self.reward()
 
-		for s in self.singleLidarOuput:
-			if s == 1:
-				gameSuccessFlag = True
+		if pygame.sprite.collide_rect(self.agent1, self.target1)
+			gameSuccessFlag = True
 
 		# if reward >= 0:
 		# 	self.stepCount += 1
