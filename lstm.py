@@ -35,6 +35,10 @@ class Memory():
         sampled_episodes = random.sample(self.memory, bsize)
         batch = []
         for episode in sampled_episodes:
+            if len(episode) < time_step:
+                while len(episode) < time_step:
+                    # print(episode[-1])
+                    episode.append(episode[-1])
             # print(episode)
             point = np.random.randint(0, len(episode)+1-time_step)
             batch.append(episode[point:point+time_step])
@@ -49,9 +53,9 @@ OUT_SIZE = 5
 BATCH_SIZE = 32
 TIME_STEP = 8
 GAMMA = 0.99
-INITIAL_EPSILON = 1.0
+INITIAL_EPSILON = 0.5
 FINAL_EPSILON = 0.1
-TOTAL_EPISODES = 20000
+TOTAL_EPISODES = 50000
 MAX_STEPS = 500
 MEMORY_SIZE = 3000 # size of the list to store last n episodes
 UPDATE_FREQ = 10
@@ -138,8 +142,8 @@ for i in range(0, MEMORY_SIZE):
         next_state, reward, done, success = game.step(action)
         local_memory.append((curr_state, action, reward, next_state))
         curr_state = next_state
-        # if done or success:
-        #     break
+        if done or success:
+            break
     mem.add_episode(local_memory)
 
 print('Populated with %d Episodes'%(len(mem.memory)))
@@ -151,7 +155,7 @@ loss_stat = []
 reward_stat = []
 total_steps = 0
 n_success = 0
-
+chkpt = 'LSTM_CKPT4_withreducedfailingrew.pth'
 for episode in trange(0, TOTAL_EPISODES):
     curr_state = game.reset()
     episode_reward = 0
@@ -160,6 +164,9 @@ for episode in trange(0, TOTAL_EPISODES):
     local_memory = []
 
     hidden_state, cell_state = nn_model.init_hidden_states(bsize = 1)
+
+    if episode%500 == 0:
+        torch.save(nn_model.state_dict(), chkpt)
 
     while step_count < MAX_STEPS:
         step_count += 1
@@ -214,9 +221,9 @@ for episode in trange(0, TOTAL_EPISODES):
                 rewards.append(rw)
                 next_states.append(ns)
 
-            current_states = np.array(current_states)
+            current_states = np.asarray(current_states)
             actions = np.array(actions)
-            next_states = np.array(next_states)
+            next_states = np.asarray(next_states)
             rewards = np.array(rewards)
 
             torch_cs = torch.from_numpy(current_states).float().to(device)
@@ -252,12 +259,13 @@ for episode in trange(0, TOTAL_EPISODES):
         SummaryWriter.add_scalar('data/episode_loss', episode_loss, episode)
 
         if done or success:
+            SummaryWriter.add_scalar('data/steps_per_episode', step_count, episode)
             if success:
                 n_success += 1
                 SummaryWriter.add_scalar('data/cumulative_success', n_success, episode)
                 SummaryWriter.add_scalar('data/success', 1, episode)
-            # break
-torch.save(nn_model.state_dict(), 'LSTM_CKPT.pth')
+            break
+torch.save(nn_model.state_dict(), chkpt)
 
 
 
