@@ -18,12 +18,14 @@ import pygame
 from Game import Game
 
 pygame.init()
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
 
 # Define Neural Net model
 def weights_init(m):
     classname = m.__class__.name__
     if classname.find('Linear') != -1:
-        nn.init.normal_(m.weight, 0, 1)
+        nn.init.normal_(m.weight, 0, 1).to(device)
 
 class model_network(nn.Module):
     def __init__(self):
@@ -88,11 +90,12 @@ n_successes = 0
 max_position = -0.4
 
 NUM_EPISODES = 50000
-LEN_EPISODE = 1000
+LEN_EPISODE = 200
 reward_history = []
 
 # initialize model
-nn_model = model_network()
+nn_model = model_network().to(device)
+
 if load_model == 'True':
     nn_model.load_state_dict(torch.load('./models/checkpoint_final.pth'), strict=False)
 if train == 'False':
@@ -127,7 +130,7 @@ for episode in trange(NUM_EPISODES):
             game.render()
 
         # get Q value for current state
-        Q = nn_model(Variable(torch.from_numpy(curr_state).type(torch.FloatTensor)))
+        Q = nn_model(Variable(torch.from_numpy(curr_state).float().to(device)))
 
         # Randomly sample an action from the action space
         # Should really be your exploration/exploitation policy
@@ -152,7 +155,7 @@ for episode in trange(NUM_EPISODES):
         next_state = np.asarray(next_state)
         
         # This is where your NN/GP code should go
-        Q1 = nn_model(Variable(torch.from_numpy(next_state).type(torch.FloatTensor)))
+        Q1 = nn_model(Variable(torch.from_numpy(next_state).float().to(device)))
         maxQ1, _ = torch.max(Q1,-1)
         
         # Create target vector
@@ -165,6 +168,9 @@ for episode in trange(NUM_EPISODES):
         loss = loss_fn(Q, Q_target)
         # print(loss)
         # input('a')
+
+        # print(next(nn_model.parameters()).is_cuda)
+
         if train:
             # Train the network/GP
             nn_model.zero_grad()

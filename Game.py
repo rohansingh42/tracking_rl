@@ -292,10 +292,10 @@ class Game:
 
 		# print(self.stepCount)
 		if gameOverFlag == True:
-			reward = -100
+			reward = -200
 		elif self.stepCount > 100:
 			gameSuccessFlag = True
-			reward = 100
+			reward = 200
 		
 		# if self.stepCount > 500:
 		# 	gameOverFlag = True
@@ -339,4 +339,7 @@ class Game:
 		self.lidarDLGroup.draw(self.screen)
 		self.lidarLGroup.draw(self.screen)
 		self.lidarULGroup.draw(self.screen)
+
+		# pygame.tiukjjme.delay(20)
+
 		pygame.display.flip()
