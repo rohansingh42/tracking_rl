@@ -287,15 +287,19 @@ class Game:
 		self.visibility8()
 		reward = self.reward()
 
-		if reward >= 0:
-			self.stepCount += 1
+		for s in self.singleLidarOuput:
+			if s == 1:
+				gameSuccessFlag = True
+
+		# if reward >= 0:
+		# 	self.stepCount += 1
 
 		# print(self.stepCount)
 		if gameOverFlag == True:
 			reward = -100
-		elif self.stepCount > 200:
-			gameSuccessFlag = True
-			reward = 100
+		# elif self.stepCount > 200:
+		# 	gameSuccessFlag = True
+		# 	reward = 100
 		
 		# if self.stepCount > 500:
 		# 	gameOverFlag = True
