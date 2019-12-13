@@ -293,7 +293,7 @@ class Game:
 		# print(self.stepCount)
 		if gameOverFlag == True:
 			reward = -100
-		elif self.stepCount > 100:
+		elif self.stepCount > 200:
 			gameSuccessFlag = True
 			reward = 100
 		

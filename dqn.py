@@ -88,7 +88,7 @@ n_successes = 0
 max_position = -0.4
 
 NUM_EPISODES = 50000
-LEN_EPISODE = 1000
+LEN_EPISODE = 500
 reward_history = []
 
 # initialize model
@@ -186,8 +186,9 @@ for episode in trange(NUM_EPISODES):
         if gameOverFlag or gameSuccessFlag:
             # decrease epsilon value as the number of successful runs increase
             if gameSuccessFlag:
-                epsilon *= 0.5
-                SummaryWriter.add_scalar('data/epsilon', epsilon, episode)
+                if epsilon > 0.1:
+                    epsilon *= 0.95
+                    SummaryWriter.add_scalar('data/epsilon', epsilon, episode)
 
                 # adjust learning rate as model converges
                 if train:
