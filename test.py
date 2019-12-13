@@ -3,7 +3,7 @@ import numpy as np
 
 from Game import Game, Agent, Target
 
-pygame.init()
+# pygame.init()
 
 game = Game()
 
@@ -14,7 +14,7 @@ reward = 0
 clock = pygame.time.Clock()
 
 while running:
-    game.render()
+    # game.render()
     clock.tick(30)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

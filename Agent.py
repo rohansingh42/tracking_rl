@@ -36,6 +36,8 @@ class Agent(pygame.sprite.Sprite):
 		self.image.fill(color)
 		self.rect = self.image.get_rect()
 		self.image = self.image.convert()
+		self.rect.centerx = startX
+		self.rect.centery = startY
 
 	def move4(self, action, background, noObsFlag = True):
 		backSize = background.get_size()

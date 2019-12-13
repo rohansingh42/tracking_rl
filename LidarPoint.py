@@ -10,7 +10,7 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
 class LidarPoint(pygame.sprite.Sprite):
-	def __init__(self, startX, startY, size=5, color=YELLOW, width=720, height=480):
+	def __init__(self, startX, startY, size=8, color=YELLOW, width=720, height=480):
 		pygame.sprite.Sprite.__init__(self)
 		self.color = color
 		self.size = size
@@ -26,6 +26,8 @@ class LidarPoint(pygame.sprite.Sprite):
 		self.image.fill(color)
 		self.rect = self.image.get_rect()
 		self.image = self.image.convert()
+		self.rect.centerx = startX
+		self.rect.centery = startY
 
 	def plot(self, dx, dy):
 		self.currX += dx

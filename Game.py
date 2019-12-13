@@ -36,85 +36,16 @@ class Game:
 		self.agentSize = agentSize
 		self.stepSize = stepSize
 
-		# initialize agent sprites
-		self.allAgents = pygame.sprite.Group()
-		agentStartX = np.random.randint(50,self.width-50)
-		agentStartY = np.random.randint(50,self.height-50)
-		self.agent1 = Agent(startX=agentStartX, startY=agentStartY,
-				nLidarPoints = 10, lidarLength = 80,
-				size=self.agentSize, stepSize=self.stepSize)
-		self.allAgents.add(self.agent1)
-
-		# initialize target sprites
-		self.allTargets = pygame.sprite.Group()
-		self.target1 = Target(startX=100, startY=100, id=0,
-				size=self.agentSize, stepSize=self.stepSize)
-		self.allTargets.add(self.target1)
-
-		# intialize lidar sprites
-		dist = int(self.lidarLength/self.nLidarPoints)
-		distDiag = int(self.lidarLength/(self.nLidarPoints*(2**0.5)))
-		self.lidarUGroup = pygame.sprite.Group()
-		self.lidarU = []
-		for i in range(nLidarPoints):
-			lp = LidarPoint(agentStartX, agentStartY - i*dist)
-			self.lidarU.append(lp)
-			self.lidarUGroup.add(lp)
-
-		self.lidarURGroup = pygame.sprite.Group()
-		self.lidarUR = []
-		for i in range(nLidarPoints):
-			lp = LidarPoint(agentStartX + i*distDiag, agentStartY - i*distDiag)
-			self.lidarUR.append(lp)
-			self.lidarURGroup.add(lp)
-
-		self.lidarRGroup = pygame.sprite.Group()
-		self.lidarR = []
-		for i in range(nLidarPoints):
-			lp = LidarPoint(agentStartX + i*dist, agentStartY)
-			self.lidarR.append(lp)
-			self.lidarRGroup.add(lp)
-
-		self.lidarDRGroup = pygame.sprite.Group()
-		self.lidarDR = []
-		for i in range(nLidarPoints):
-			lp = LidarPoint(agentStartX + i*distDiag, agentStartY + i*distDiag)
-			self.lidarDR.append(lp)
-			self.lidarDRGroup.add(lp)
-
-		self.lidarDGroup = pygame.sprite.Group()
-		self.lidarD = []
-		for i in range(nLidarPoints):
-			lp = LidarPoint(agentStartX, agentStartY + i*dist)
-			self.lidarD.append(lp)
-			self.lidarDGroup.add(lp)
-
-		self.lidarDLGroup = pygame.sprite.Group()
-		self.lidarDL = []
-		for i in range(nLidarPoints):
-			lp = LidarPoint(agentStartX - i*distDiag, agentStartY + i*distDiag)
-			self.lidarDL.append(lp)
-			self.lidarDLGroup.add(lp)
-
-		self.lidarLGroup = pygame.sprite.Group()
-		self.lidarL = []
-		for i in range(nLidarPoints):
-			lp = LidarPoint(agentStartX - i*dist, agentStartY)
-			self.lidarL.append(lp)
-			self.lidarLGroup.add(lp)
-
-		self.lidarULGroup = pygame.sprite.Group()
-		self.lidarUL = []
-		for i in range(nLidarPoints):
-			lp = LidarPoint(agentStartX - i*distDiag, agentStartY - i*distDiag)
-			self.lidarUL.append(lp)
-			self.lidarULGroup.add(lp)
+		self.reset()
 		
-	def new(self):
+	def reset(self):
+		# Number of iterations of game
+		self.stepCount = 0
+
 		# initialize agent sprites
 		self.allAgents = pygame.sprite.Group()
-		agentStartX = np.random.randint(50,self.width-50)
-		agentStartY = np.random.randint(50,self.height-50)
+		agentStartX = (np.random.randint(1,int(self.width/self.agentSize)-1)*self.agentSize)
+		agentStartY = (np.random.randint(1,int(self.height/self.agentSize)-1)*self.agentSize)
 		self.agent1 = Agent(startX=agentStartX, startY=agentStartY,
 				nLidarPoints = 10, lidarLength = 80,
 				size=self.agentSize, stepSize=self.stepSize)
@@ -122,6 +53,8 @@ class Game:
 
 		# initialize target sprites
 		self.allTargets = pygame.sprite.Group()
+		targetStartX = (np.random.randint(1,int(self.width/self.agentSize)-1)*self.agentSize)
+		targetStartY = (np.random.randint(1,int(self.height/self.agentSize)-1)*self.agentSize)
 		self.target1 = Target(startX=100, startY=100, id=0,
 				size=self.agentSize, stepSize=self.stepSize)
 		self.allTargets.add(self.target1)
@@ -131,59 +64,63 @@ class Game:
 		distDiag = int(self.lidarLength/(self.nLidarPoints*(2**0.5)))
 		self.lidarUGroup = pygame.sprite.Group()
 		self.lidarU = []
-		for i in range(nLidarPoints):
+		for i in range(self.nLidarPoints):
 			lp = LidarPoint(agentStartX, agentStartY - i*dist)
 			self.lidarU.append(lp)
 			self.lidarUGroup.add(lp)
 
 		self.lidarURGroup = pygame.sprite.Group()
 		self.lidarUR = []
-		for i in range(nLidarPoints):
+		for i in range(self.nLidarPoints):
 			lp = LidarPoint(agentStartX + i*distDiag, agentStartY - i*distDiag)
 			self.lidarUR.append(lp)
 			self.lidarURGroup.add(lp)
 
 		self.lidarRGroup = pygame.sprite.Group()
 		self.lidarR = []
-		for i in range(nLidarPoints):
+		for i in range(self.nLidarPoints):
 			lp = LidarPoint(agentStartX + i*dist, agentStartY)
 			self.lidarR.append(lp)
 			self.lidarRGroup.add(lp)
 
 		self.lidarDRGroup = pygame.sprite.Group()
 		self.lidarDR = []
-		for i in range(nLidarPoints):
+		for i in range(self.nLidarPoints):
 			lp = LidarPoint(agentStartX + i*distDiag, agentStartY + i*distDiag)
 			self.lidarDR.append(lp)
 			self.lidarDRGroup.add(lp)
 
 		self.lidarDGroup = pygame.sprite.Group()
 		self.lidarD = []
-		for i in range(nLidarPoints):
+		for i in range(self.nLidarPoints):
 			lp = LidarPoint(agentStartX, agentStartY + i*dist)
 			self.lidarD.append(lp)
 			self.lidarDGroup.add(lp)
 
 		self.lidarDLGroup = pygame.sprite.Group()
 		self.lidarDL = []
-		for i in range(nLidarPoints):
+		for i in range(self.nLidarPoints):
 			lp = LidarPoint(agentStartX - i*distDiag, agentStartY + i*distDiag)
 			self.lidarDL.append(lp)
 			self.lidarDLGroup.add(lp)
 
 		self.lidarLGroup = pygame.sprite.Group()
 		self.lidarL = []
-		for i in range(nLidarPoints):
+		for i in range(self.nLidarPoints):
 			lp = LidarPoint(agentStartX - i*dist, agentStartY)
 			self.lidarL.append(lp)
 			self.lidarLGroup.add(lp)
 
 		self.lidarULGroup = pygame.sprite.Group()
 		self.lidarUL = []
-		for i in range(nLidarPoints):
+		for i in range(self.nLidarPoints):
 			lp = LidarPoint(agentStartX - i*distDiag, agentStartY - i*distDiag)
 			self.lidarUL.append(lp)
 			self.lidarULGroup.add(lp)
+
+		self.visibility8()
+
+		return self.singleLidarOuput
 
 	"""
 	reward for 8 dim vector at each time step
@@ -340,6 +277,8 @@ class Game:
 		self.lidarULGroup.update()
 	
 	def step(self, action):
+
+		gameSuccessFlag = False
 		# calls need to follow this order
 		self.allTargets.update()
 		prevState = self.agent1.getState()
@@ -348,9 +287,43 @@ class Game:
 		self.visibility8()
 		reward = self.reward()
 
+		if reward >= 0:
+			self.stepCount += 1
+
+		# print(self.stepCount)
 		if gameOverFlag == True:
 			reward = -100
+		elif self.stepCount > 100:
+			gameSuccessFlag = True
+			reward = 100
+		
+		# if self.stepCount > 500:
+		# 	gameOverFlag = True
+		# 	reward = -1
+			
 		self.allAgents.update()
+
+		return self.singleLidarOuput, reward, gameOverFlag, gameSuccessFlag
+
+	# def stepImage(self, action):
+	# 	# calls need to follow this order
+	# 	self.allTargets.update()
+	# 	prevState = self.agent1.getState()
+	# 	newState, gameOverFlag = self.agent1.move4(action=action, background=self.background)
+	# 	self.updateLidar(newState[0]-prevState[0], newState[1]-prevState[1])
+	# 	self.visibility8()
+	# 	reward = self.reward()
+
+	# 	if gameOverFlag == True:
+	# 		reward = -100
+	# 	self.allAgents.update()
+
+	# 	# for image
+
+	# 	self.screen.blit(self.background,(0,0))
+	# 	self.allTargets.draw(self.screen)
+	# 	self.allAgents.draw(self.screen)
+
 
 		return self.singleLidarOuput, reward, gameOverFlag
 

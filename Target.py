@@ -26,6 +26,8 @@ class Target(pygame.sprite.Sprite):
 		self.image.fill(color)
 		self.rect = self.image.get_rect()
 		self.image = self.image.convert()
+		self.rect.centerx = startX
+		self.rect.centery = startY
 
 	def update(self):
 		if self.id == 0:
