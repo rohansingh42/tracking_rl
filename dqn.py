@@ -88,14 +88,14 @@ print("\nAction space")
 if train == False:
 	epsilon = 0.0
 else:
-	epsilon = 0.3
+	epsilon = 0
 
 discount_factor = 0.99
 learning_rate = 0.001
 n_successes = 0
 max_position = -0.4
 
-NUM_EPISODES = 50000
+NUM_EPISODES = 10000
 LEN_EPISODE = 500
 reward_history = []
 
@@ -107,7 +107,7 @@ if train == False:
 	nn_model.eval()
 else :
 	nn_model.train()
-	input('a')
+	print("training...")
 	
 # Performance metric
 recent_reward=[]
@@ -116,6 +116,8 @@ loss_fn =  nn.MSELoss() # nn.SmoothL1Loss()
 optimizer = optim.Adam(nn_model.parameters(), lr = learning_rate)
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size = 1, gamma = 0.9)
 
+model_path = './models/checkpoint_final2.pth'
+
 # Run for NUM_EPISODES
 for episode in trange(NUM_EPISODES):
 	episode_reward = 0
@@ -123,10 +125,11 @@ for episode in trange(NUM_EPISODES):
 	# curr_state = env.reset()
 	# curr_state object at the start of the episode from pygame
 	curr_state = game.reset()
+	game.setTargetID(0)
 	curr_state = np.asarray(curr_state)
 
 	if train and episode%500 == 0:
-		torch.save(nn_model.state_dict(), './models/checkpoint_final.pth')
+		torch.save(nn_model.state_dict(), model_path)
 
 	for step in range(LEN_EPISODE):
 		# Comment to stop rendering the environment
@@ -149,6 +152,7 @@ for episode in trange(NUM_EPISODES):
 				# take the action with maximum Q value
 				_, action = torch.max(Q, -1)
 				action = action.item()
+			# print("hgf")
 		else:
 			# take the action with maximum Q value
 			_, action = torch.max(Q, -1)
@@ -199,7 +203,7 @@ for episode in trange(NUM_EPISODES):
 			SummaryWriter.add_scalar('data/max_position', max_position, episode)
 
 		if gameOverFlag or gameSuccessFlag:
-			print(episode_reward)
+			# print(episode_reward)
 			# decrease epsilon value as the number of successful runs increase
 			if gameSuccessFlag:
 				if epsilon > 0.1:
@@ -239,7 +243,7 @@ for episode in trange(NUM_EPISODES):
 			# plt.pause(0.01)
 			# fig.canvas.draw()
 if train:
-	torch.save(nn_model.state_dict(), './models/checkpoint_final.pth')
+	torch.save(nn_model.state_dict(), model_path)
 SummaryWriter.close()
 pygame.quit()
 print('successful episodes: {:d} - {:.4f}%'.format(n_successes, n_successes*100/NUM_EPISODES))

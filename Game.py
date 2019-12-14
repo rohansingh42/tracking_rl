@@ -11,6 +11,7 @@ import numpy as np
 from Agent import Agent
 from Target import Target
 from LidarPoint import LidarPoint
+from Obstacle import Obstacle
 
 # define colors
 WHITE = (255, 255, 255)
@@ -21,7 +22,7 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
 class Game:
-	def __init__(self, width=720, height=480, fps=30, nLidarPoints = 10, lidarLength = 100, stepSize=20, agentSize=20):
+	def __init__(self, width=720, height=480, fps=30, nLidarPoints = 10, lidarLength = 160, stepSize=20, agentSize=20):
 		# pygame.init()
 		pygame.display.set_caption("Press ESC to quit")
 		self.width = width
@@ -55,9 +56,13 @@ class Game:
 		self.allTargets = pygame.sprite.Group()
 		targetStartX = (np.random.randint(1,int(self.width/self.agentSize)-1)*self.agentSize)
 		targetStartY = (np.random.randint(1,int(self.height/self.agentSize)-1)*self.agentSize)
-		self.target1 = Target(startX=100, startY=100, id=0,
-				size=self.agentSize, stepSize=self.stepSize)
+		self.target1 = Target(startX=targetStartX, startY=targetStartY, id=0,
+				size=20, stepSize=self.stepSize)
 		self.allTargets.add(self.target1)
+
+		# # initialize obstacles
+		# self.allObstacles = pygame.sprite.Group()
+		# self.obstacle1 = Obstacle(obWidth=200, obHeight=40, startX=)
 
 		# intialize lidar sprites
 		dist = int(self.lidarLength/self.nLidarPoints)
@@ -145,7 +150,7 @@ class Game:
 	def visibility8(self):
 		self.completeLidarOut = []
 		self.singleLidarOuput = [0,0,0,0,0,0,0,0]
-		
+
 		temp = []
 		for sp in self.lidarU:
 			if sp.wallCollide():
@@ -293,7 +298,7 @@ class Game:
 		# print(self.stepCount)
 		if gameOverFlag == True:
 			reward = -200
-		elif self.stepCount > 100:
+		elif self.stepCount > 200:
 			gameSuccessFlag = True
 			reward = 200
 		
@@ -305,27 +310,9 @@ class Game:
 
 		return self.singleLidarOuput, reward, gameOverFlag, gameSuccessFlag
 
-	# def stepImage(self, action):
-	# 	# calls need to follow this order
-	# 	self.allTargets.update()
-	# 	prevState = self.agent1.getState()
-	# 	newState, gameOverFlag = self.agent1.move4(action=action, background=self.background)
-	# 	self.updateLidar(newState[0]-prevState[0], newState[1]-prevState[1])
-	# 	self.visibility8()
-	# 	reward = self.reward()
+	def setTargetID(self, id):
+		self.target1.setID(id)
 
-	# 	if gameOverFlag == True:
-	# 		reward = -100
-	# 	self.allAgents.update()
-
-	# 	# for image
-
-	# 	self.screen.blit(self.background,(0,0))
-	# 	self.allTargets.draw(self.screen)
-	# 	self.allAgents.draw(self.screen)
-
-
-		return self.singleLidarOuput, reward, gameOverFlag
 
 	def render(self):
 		self.screen.blit(self.background,(0,0))
@@ -339,5 +326,5 @@ class Game:
 		self.lidarDLGroup.draw(self.screen)
 		self.lidarLGroup.draw(self.screen)
 		self.lidarULGroup.draw(self.screen)
-		pygame.time.delay(10)
+		# pygame.time.delay(10)
 		pygame.display.flip()

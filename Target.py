@@ -29,6 +29,9 @@ class Target(pygame.sprite.Sprite):
 		self.rect.centerx = startX
 		self.rect.centery = startY
 
+	def setID(self, id):
+		self.id = id
+
 	def update(self):
 		if self.id == 0:
 			if self.rect.centerx <= 100 and self.rect.centery > 100:		# Go up
@@ -43,3 +46,42 @@ class Target(pygame.sprite.Sprite):
 			elif self.rect.centery >= (self.height-100) and self.rect.centerx > 100:		# Go left
 				self.rect.centerx -= self.stepSize
 				return
+			else:
+				self.rect.centerx += self.stepSize
+				# self.rect.centery += self.stepSize
+				return
+
+		if self.id == 1:
+			if self.rect.centerx <= 300 and self.rect.centery > 100:		# Go up
+				self.rect.centery -= self.stepSize
+				return
+			elif self.rect.centery <= 100 and self.rect.centerx < (self.width-300):			# Go right
+				self.rect.centerx += self.stepSize
+				return
+			elif self.rect.centerx >= (self.width-300) and self.rect.centery < (self.height-100):		# Go down
+				self.rect.centery += self.stepSize
+				return
+			elif self.rect.centery >= (self.height-100) and self.rect.centerx > 300:		# Go left
+				self.rect.centerx -= self.stepSize
+				return
+
+		# if self.id == 1:
+		# 	if self.rect.centerx <= 360 and self.rect.centery > 240:		# Go up
+		# 		self.rect.centery -= self.stepSize
+		# 		self.rect.centerx -= self.stepSize
+		# 		return
+		# 	elif self.rect.centery > 240 and self.rect.centerx < 360:			# Go right
+		# 		self.rect.centery += self.stepSize
+		# 		self.rect.centerx += self.stepSize
+		# 		return
+		# 	elif self.rect.centerx >= (self.width-300) and self.rect.centery < (self.height-100):		# Go down
+		# 		self.rect.centery += self.stepSize
+		# 		self.rect.centerx += self.stepSize
+		# 		return
+		# 	elif self.rect.centery >= (self.height-100) and self.rect.centerx > 300:		# Go left
+		# 		self.rect.centerx -= self.stepSize
+		# 		return
+
+		if self.id == 2:
+			self.rect.centerx += self.stepSize*np.random.randint(-1,2)
+			self.rect.centery += self.stepSize*np.random.randint(-1,2)
