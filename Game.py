@@ -339,4 +339,5 @@ class Game:
 		self.lidarDLGroup.draw(self.screen)
 		self.lidarLGroup.draw(self.screen)
 		self.lidarULGroup.draw(self.screen)
+		pygame.time.delay(10)
 		pygame.display.flip()
