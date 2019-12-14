@@ -58,7 +58,7 @@ class Game:
 		self.allTargets = pygame.sprite.Group()
 		targetStartX = (np.random.randint(1,int(self.width/self.agentSize)-1)*self.agentSize)
 		targetStartY = (np.random.randint(1,int(self.height/self.agentSize)-1)*self.agentSize)
-		self.target1 = Target(startX=targetStartX, startY=targetStartY, id=0,
+		self.target1 = Target(startX=targetStartX, startY=targetStartY, id=3,
 				size=20, stepSize=self.stepSize)
 		self.allTargets.add(self.target1)
 
@@ -138,7 +138,7 @@ class Game:
 
 		self.visibility8()
 
-		return self.betterSingleLidarOutput
+		return self.singleLidarOutput
 
 	"""
 	reward for 8 dim vector at each time step
@@ -148,7 +148,7 @@ class Game:
 	"""
 	def reward(self):
 		count = 0
-		for s in self.singleLidarOuput:
+		for s in self.singleLidarOutput:
 			if s == 1:
 				count += 1
 
@@ -162,19 +162,19 @@ class Game:
 
 	def visibility8(self):
 		self.completeLidarOut = []
-		self.singleLidarOuput = [0,0,0,0,0,0,0,0]
+		self.singleLidarOutput = [0,0,0,0,0,0,0,0]
 		self.betterSingleLidarOutput = [0,0,0,0,0,0,0,0]
 
 		temp = []
 		for index,sp in enumerate(self.lidarU):
 			if sp.wallCollide() or pygame.sprite.spritecollide(sp, self.allObstacles, False):
 				temp.append(-1)
-				if self.singleLidarOuput[0] == 0:
-					self.singleLidarOuput[0] = -1
+				if self.singleLidarOutput[0] == 0:
+					self.singleLidarOutput[0] = -1
 					self.betterSingleLidarOutput[0] = -(index+1)
 			elif pygame.sprite.spritecollide(sp, self.allTargets, False):
 				temp.append(1)
-				self.singleLidarOuput[0] = 1 
+				self.singleLidarOutput[0] = 1 
 				if self.betterSingleLidarOutput[0] == 0:
 					self.betterSingleLidarOutput[0] = index+1
 			else:
@@ -185,12 +185,12 @@ class Game:
 		for index,sp in enumerate(self.lidarUR):
 			if sp.wallCollide() or pygame.sprite.spritecollide(sp, self.allObstacles, False):
 				temp.append(-1)
-				if self.singleLidarOuput[1] == 0:
-					self.singleLidarOuput[1] = -1
+				if self.singleLidarOutput[1] == 0:
+					self.singleLidarOutput[1] = -1
 					self.betterSingleLidarOutput[1] = -(index+1)
 			elif pygame.sprite.spritecollide(sp, self.allTargets, False):
 				temp.append(1)
-				self.singleLidarOuput[1] = 1 
+				self.singleLidarOutput[1] = 1 
 				if self.betterSingleLidarOutput[1] == 0:
 					self.betterSingleLidarOutput[1] = index+1
 			else:
@@ -201,12 +201,12 @@ class Game:
 		for index,sp in enumerate(self.lidarR):
 			if sp.wallCollide() or pygame.sprite.spritecollide(sp, self.allObstacles, False):
 				temp.append(-1)
-				if self.singleLidarOuput[2] == 0:
-					self.singleLidarOuput[2] = -1
+				if self.singleLidarOutput[2] == 0:
+					self.singleLidarOutput[2] = -1
 					self.betterSingleLidarOutput[2] = -(index+1)
 			elif pygame.sprite.spritecollide(sp, self.allTargets, False):
 				temp.append(1)
-				self.singleLidarOuput[2] = 1 
+				self.singleLidarOutput[2] = 1 
 				if self.betterSingleLidarOutput[2] == 0:
 					self.betterSingleLidarOutput[2] = index+1
 			else:
@@ -217,12 +217,12 @@ class Game:
 		for index,sp in enumerate(self.lidarDR):
 			if sp.wallCollide() or pygame.sprite.spritecollide(sp, self.allObstacles, False):
 				temp.append(-1)
-				if self.singleLidarOuput[3] == 0:
-					self.singleLidarOuput[3] = -1
+				if self.singleLidarOutput[3] == 0:
+					self.singleLidarOutput[3] = -1
 					self.betterSingleLidarOutput[3] = -(index+1)
 			elif pygame.sprite.spritecollide(sp, self.allTargets, False):
 				temp.append(1)
-				self.singleLidarOuput[3] = 1 
+				self.singleLidarOutput[3] = 1 
 				if self.betterSingleLidarOutput[3] == 0:
 					self.betterSingleLidarOutput[3] = index+1
 			else:
@@ -233,12 +233,12 @@ class Game:
 		for index,sp in enumerate(self.lidarD):
 			if sp.wallCollide() or pygame.sprite.spritecollide(sp, self.allObstacles, False):
 				temp.append(-1)
-				if self.singleLidarOuput[4] == 0:
-					self.singleLidarOuput[4] = -1
+				if self.singleLidarOutput[4] == 0:
+					self.singleLidarOutput[4] = -1
 					self.betterSingleLidarOutput[4] = -(index+1)
 			elif pygame.sprite.spritecollide(sp, self.allTargets, False):
 				temp.append(1)
-				self.singleLidarOuput[4] = 1 
+				self.singleLidarOutput[4] = 1 
 				if self.betterSingleLidarOutput[4] == 0:
 					self.betterSingleLidarOutput[4] = index+1
 			else:
@@ -249,12 +249,12 @@ class Game:
 		for index,sp in enumerate(self.lidarDL):
 			if sp.wallCollide() or pygame.sprite.spritecollide(sp, self.allObstacles, False):
 				temp.append(-1)
-				if self.singleLidarOuput[5] == 0:
-					self.singleLidarOuput[5] = -1
+				if self.singleLidarOutput[5] == 0:
+					self.singleLidarOutput[5] = -1
 					self.betterSingleLidarOutput[5] = -(index+1)
 			elif pygame.sprite.spritecollide(sp, self.allTargets, False):
 				temp.append(1)
-				self.singleLidarOuput[5] = 1 
+				self.singleLidarOutput[5] = 1 
 				if self.betterSingleLidarOutput[5] == 0:
 					self.betterSingleLidarOutput[5] = index+1
 			else:
@@ -265,12 +265,12 @@ class Game:
 		for index,sp in enumerate(self.lidarL):
 			if sp.wallCollide() or pygame.sprite.spritecollide(sp, self.allObstacles, False):
 				temp.append(-1)
-				if self.singleLidarOuput[6] == 0:
-					self.singleLidarOuput[6] = -1
+				if self.singleLidarOutput[6] == 0:
+					self.singleLidarOutput[6] = -1
 					self.betterSingleLidarOutput[6] = -(index+1)
 			elif pygame.sprite.spritecollide(sp, self.allTargets, False):
 				temp.append(1)
-				self.singleLidarOuput[6] = 1 
+				self.singleLidarOutput[6] = 1 
 				if self.betterSingleLidarOutput[6] == 0:
 					self.betterSingleLidarOutput[6] = index+1
 			else:
@@ -281,12 +281,12 @@ class Game:
 		for index,sp in enumerate(self.lidarUL):
 			if sp.wallCollide() or pygame.sprite.spritecollide(sp, self.allObstacles, False):
 				temp.append(-1)
-				if self.singleLidarOuput[7] == 0:
-					self.singleLidarOuput[7] = -1
+				if self.singleLidarOutput[7] == 0:
+					self.singleLidarOutput[7] = -1
 					self.betterSingleLidarOutput[7] = -(index+1)
 			elif pygame.sprite.spritecollide(sp, self.allTargets, False):
 				temp.append(1)
-				self.singleLidarOuput[7] = 1 
+				self.singleLidarOutput[7] = 1 
 				if self.betterSingleLidarOutput[7] == 0:
 					self.betterSingleLidarOutput[7] = index+1
 			else:
@@ -340,7 +340,7 @@ class Game:
 		# print(self.stepCount)
 		if gameOverFlag == True:
 			reward = -200
-		elif self.stepCount > 200:
+		elif self.stepCount > 50:
 			gameSuccessFlag = True
 			reward = 200
 		
@@ -350,7 +350,7 @@ class Game:
 			
 		self.allAgents.update()
 
-		return self.betterSingleLidarOutput, reward, gameOverFlag, gameSuccessFlag
+		return self.singleLidarOutput, reward, gameOverFlag, gameSuccessFlag
 
 	def setTargetID(self, id):
 		self.target1.setID(id)

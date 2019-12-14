@@ -51,6 +51,24 @@ class Target(pygame.sprite.Sprite):
 				# self.rect.centery += self.stepSize
 				return
 
+		if self.id == 3:
+			if self.rect.centerx <= 100 and self.rect.centery > 240:		# Go up
+				self.rect.centery -= self.stepSize
+				return
+			elif self.rect.centery <= 240 and self.rect.centerx < (self.width-100):			# Go right
+				self.rect.centerx += self.stepSize
+				return
+			elif self.rect.centerx >= (self.width-100) and self.rect.centery < 240:		# Go down
+				self.rect.centery += self.stepSize
+				return
+			elif self.rect.centery >= 240 and self.rect.centerx > 100:		# Go left
+				self.rect.centerx -= self.stepSize
+				return
+			else:
+				self.rect.centerx += self.stepSize
+				# self.rect.centery += self.stepSize
+				return
+		
 		if self.id == 1:
 			if self.rect.centerx <= 300 and self.rect.centery > 100:		# Go up
 				self.rect.centery -= self.stepSize

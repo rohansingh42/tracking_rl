@@ -91,11 +91,11 @@ else:
 	epsilon = 0.2
 
 discount_factor = 0.99
-learning_rate = 0.001
+learning_rate = 0.01
 n_successes = 0
 max_position = -0.4
 
-NUM_EPISODES = 10000
+NUM_EPISODES = 1000
 LEN_EPISODE = 500
 reward_history = []
 
@@ -116,7 +116,7 @@ loss_fn =  nn.MSELoss() # nn.SmoothL1Loss()
 optimizer = optim.Adam(nn_model.parameters(), lr = learning_rate)
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size = 100, gamma = 0.9)
 
-model_path = './models/checkpoint_final2.pth'
+model_path = './models/checkpoint_final3.pth'
 
 # Run for NUM_EPISODES
 for episode in trange(NUM_EPISODES):
@@ -125,7 +125,7 @@ for episode in trange(NUM_EPISODES):
 	# curr_state = env.reset()
 	# curr_state object at the start of the episode from pygame
 	curr_state = game.reset()
-	game.setTargetID(0)
+	# game.setTargetID(0)
 	curr_state = np.asarray(curr_state)
 
 	if train and episode%500 == 0:
