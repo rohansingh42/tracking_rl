@@ -14,22 +14,22 @@ reward = 0
 clock = pygame.time.Clock()
 
 while running:
-    # game.render()
+    game.render()
     clock.tick(30)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                ns, reward, gof = game.step(0)
+                ns, reward, gof,_ = game.step(0)
             elif event.key == pygame.K_DOWN:
-                ns, reward, gof = game.step(1)
+                ns, reward, gof,_ = game.step(1)
             elif event.key == pygame.K_LEFT:
-                ns, reward, gof = game.step(2)
+                ns, reward, gof,_ = game.step(2)
             elif event.key == pygame.K_RIGHT:
-                ns, reward, gof = game.step(3)
+                ns, reward, gof,_ = game.step(3)
         else:
-            ns, reward, gof = game.step(4)
+            ns, reward, gof,_ = game.step(4)
 
         if gof:
             running = False
