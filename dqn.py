@@ -34,28 +34,40 @@ class model_network(nn.Module):
 		self.action_space = 5 # env.action_space.n
 		self.hidden_layer1 = 32
 		self.hidden_layer2 = 64
-		self.hidden_layer3 = 32
+		self.num_hidden_layers = 1
+		self.hidden_layer_lstm = 100
 		# define layers
 		self.fc1 = nn.Linear(self.state_space, self.hidden_layer1, bias=True)
 		self.fc2 = nn.Linear(self.hidden_layer1,self.hidden_layer2, bias=True)
-		self.fc3 = nn.Linear(self.hidden_layer2, self.hidden_layer3, bias=True)
-		
-		self.output = nn.Linear(self.hidden_layer3, self.action_space, bias=True)
+		# self.fc3 = nn.Linear(self.hidden_layer2, self.hidden_layer3, bias=True)
+		self.lstm_layer = nn.LSTM(input_size = 64, 
+                                  hidden_size = 100,
+                                  num_layers = 1, 
+                                  batch_first = True) 
+		self.output = nn.Linear(self.hidden_layer_lstm, self.action_space, bias=True)
 
 	def forward(self, x):
+		x = x.view(1,1, self.state_space)
 		model = torch.nn.Sequential(self.fc1, 
 									nn.ReLU(inplace=False), 
 									self.fc2, 
-									nn.ReLU(inplace=False), 
-									self.fc3, 
-									nn.ReLU(inplace=False), 
-									self.output)
-		return model(x)
+									nn.ReLU(inplace=False))
+		x =  model(x)
+		# initialize hidden state with zeros
+		h0 = torch.zeros(self.num_hidden_layers, x.size(0), self.hidden_layer_lstm).requires_grad_().float().to(device)
+		# initialize cell states with zeros
+		c0 = torch.zeros(self.num_hidden_layers, x.size(0), self.hidden_layer_lstm).requires_grad_().float().to(device)
+		x = x.view(-1, 1, self.hidden_layer2)
+
+		lstm_out = self.lstm_layer(x, (h0.detach(), c0.detach()))
+		out = self.output(lstm_out[0][:,-1,:])
+		# print("shape", out.shape)
+		return out
 
 # Read user arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--train", default=True, help="Flag to Train or test the network")
-parser.add_argument("--load_model", default=True, help="load pretrained model")
+parser.add_argument("--load_model", default=False, help="load pretrained model")
 args = parser.parse_args()
 train = args.train
 if str(train) == 'False':
@@ -100,7 +112,7 @@ LEN_EPISODE = 500
 reward_history = []
 
 # initialize model
-nn_model = model_network()
+nn_model = model_network().to(device)
 if load_model == True:
 	nn_model.load_state_dict(torch.load('./models/checkpoint_final2.pth'), strict=False)
 if train == False:
@@ -116,7 +128,7 @@ loss_fn =  nn.MSELoss() # nn.SmoothL1Loss()
 optimizer = optim.Adam(nn_model.parameters(), lr = learning_rate)
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size = 100, gamma = 0.9)
 
-model_path = './models/checkpoint_final2.pth'
+model_path = './models/checkpoint_dqn_lstm.pth'
 
 # Run for NUM_EPISODES
 for episode in trange(NUM_EPISODES):
@@ -176,7 +188,7 @@ for episode in trange(NUM_EPISODES):
 		# Create target vector
 		Q_target = Q.clone()
 		Q_target = Variable(Q_target.data)
-		Q_target[action] = reward + torch.mul(maxQ1.detach(), discount_factor)
+		Q_target[0,action] = reward + torch.mul(maxQ1.detach(), discount_factor)
 
 
 		# Update the policy
