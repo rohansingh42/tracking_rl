@@ -21,7 +21,7 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
 class Game:
-	def __init__(self, width=720, height=480, fps=30, nLidarPoints = 10, lidarLength = 100, stepSize=20, agentSize=20):
+	def __init__(self, width=720, height=480, fps=30, nLidarPoints = 10, lidarLength = 160, stepSize=20, agentSize=20):
 		# pygame.init()
 		pygame.display.set_caption("Press ESC to quit")
 		self.width = width
@@ -55,8 +55,8 @@ class Game:
 		self.allTargets = pygame.sprite.Group()
 		targetStartX = (np.random.randint(1,int(self.width/self.agentSize)-1)*self.agentSize)
 		targetStartY = (np.random.randint(1,int(self.height/self.agentSize)-1)*self.agentSize)
-		self.target1 = Target(startX=100, startY=100, id=0,
-				size=self.agentSize, stepSize=self.stepSize)
+		self.target1 = Target(startX=targetStartX, startY=targetStartY, id=0,
+				size=20, stepSize=self.stepSize)
 		self.allTargets.add(self.target1)
 
 		# intialize lidar sprites
@@ -120,7 +120,7 @@ class Game:
 
 		self.visibility8()
 
-		return self.singleLidarOuput
+		return self.singleLidarOuput+[agentStartX, agentStartY]
 
 	"""
 	reward for 8 dim vector at each time step
@@ -136,7 +136,7 @@ class Game:
 
 		if count == 1:
 			reward = 1
-		elif  count > 1:
+		elif  count > 3:
 			reward = 2
 		else:
 			reward = -1
@@ -292,8 +292,8 @@ class Game:
 
 		# print(self.stepCount)
 		if gameOverFlag == True:
-			reward = -5
-		elif self.stepCount > 500:
+			reward = -500
+		elif self.stepCount > 300:
 			gameSuccessFlag = True
 			reward = 200
 		
@@ -303,7 +303,10 @@ class Game:
 			
 		self.allAgents.update()
 
-		return self.singleLidarOuput, reward, gameOverFlag, gameSuccessFlag
+		# state
+		state = self.singleLidarOuput + newState
+		
+		return state, reward, gameOverFlag, gameSuccessFlag
 
 	# def stepImage(self, action):
 	# 	# calls need to follow this order
@@ -323,9 +326,7 @@ class Game:
 	# 	self.screen.blit(self.background,(0,0))
 	# 	self.allTargets.draw(self.screen)
 	# 	self.allAgents.draw(self.screen)
-
-
-		return self.singleLidarOuput, reward, gameOverFlag
+	# 	return self.singleLidarOuput, reward, gameOverFlag
 
 	def render(self):
 		self.screen.blit(self.background,(0,0))

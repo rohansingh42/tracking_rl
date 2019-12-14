@@ -20,8 +20,6 @@ from Game import Game
 
 pygame.init()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-torch.backends.cudnn.enabled = True
-torch.backends.cudnn.benchmark = True
 print(device)
 
 game = Game()
@@ -37,10 +35,6 @@ class Memory():
         sampled_episodes = random.sample(self.memory, bsize)
         batch = []
         for episode in sampled_episodes:
-            if len(episode) < time_step:
-                while len(episode) < time_step:
-                    # print(episode[-1])
-                    episode.append(episode[-1])
             # print(episode)
             point = np.random.randint(0, len(episode)+1-time_step)
             batch.append(episode[point:point+time_step])
@@ -50,17 +44,17 @@ class Memory():
 # Create Deep Recurrent Q Network (using LSTM)
 #################################################################
 # Define hyper parameters
-INPUT_SIZE = 10
+INPUT_SIZE = 8
 OUT_SIZE = 5
 BATCH_SIZE = 32
 TIME_STEP = 8
 GAMMA = 0.99
-INITIAL_EPSILON = 0.5
+INITIAL_EPSILON = 1.0
 FINAL_EPSILON = 0.1
-TOTAL_EPISODES = 50000
+TOTAL_EPISODES = 20000
 MAX_STEPS = 500
-MEMORY_SIZE = 2000 # size of the list to store last n episodes
-UPDATE_FREQ = 10
+MEMORY_SIZE = 3000 # size of the list to store last n episodes
+UPDATE_FREQ = 50
 PERFORMANCE_SAVE_INTERVAL = 200 
 TARGET_UPDATE_FREQ = 20000 # num of steps
 
@@ -119,6 +113,8 @@ class Network(nn.Module):
 
 # initialize networks
 nn_model = Network(input_size = INPUT_SIZE, out_size = OUT_SIZE).to(device)
+nn_model.load_state_dict(torch.load('LSTM_CKPT3.pth'), strict=False)
+nn_model.eval()
 print(nn_model)
 target_model = Network(input_size = INPUT_SIZE, out_size = OUT_SIZE).to(device)
 
@@ -129,39 +125,16 @@ torch.manual_seed(1); np.random.seed(1)
 path = glob.glob(os.path.expanduser('./logs/'))[0]
 SummaryWriter = SummaryWriter('{}{}'.format(path, datetime.now().strftime('%b%d_%H-%M-%S')))
 
-
-# initialize memory
-mem = Memory(memsize = MEMORY_SIZE)
-# Fill the memory for the initial state
-for i in range(0, MEMORY_SIZE):
-    curr_state = game.reset()
-    step_count = 0
-    local_memory = []
-
-    while step_count < MAX_STEPS:
-        step_count += 1
-        action = np.random.randint(0,5)
-        next_state, reward, done, success = game.step(action)
-        local_memory.append((curr_state, action, reward, next_state))
-        curr_state = next_state
-        if done or success:
-            break
-    mem.add_episode(local_memory)
-
-print('Populated with %d Episodes'%(len(mem.memory)))
-
 ###################################################################
-game = Game()
 # Start algorithm
 epsilon = INITIAL_EPSILON
 loss_stat = []
 reward_stat = []
 total_steps = 0
 n_success = 0
-chkpt = 'LSTM_6.pth'
+
 for episode in trange(0, TOTAL_EPISODES):
     curr_state = game.reset()
-    # print(curr_state)
     episode_reward = 0
     step_count = 0
     episode_loss = 0
@@ -169,105 +142,43 @@ for episode in trange(0, TOTAL_EPISODES):
 
     hidden_state, cell_state = nn_model.init_hidden_states(bsize = 1)
 
-    if episode%500 == 0:
-        torch.save(nn_model.state_dict(), chkpt)
-
     while step_count < MAX_STEPS:
+        #render
+        game.render()
         step_count += 1
         total_steps += 1
-        game.render()
-        if np.random.rand(1) < epsilon:
-            torch_x = torch.from_numpy(np.asarray(curr_state)).float().to(device)
-            model_out = nn_model.forward(torch_x, bsize = 1, time_step=1,
-                                         hidden_state = hidden_state, 
-                                         cell_state = cell_state)
-            action = np.random.randint(0,5)
-            hidden_state = model_out[1][0]
-            cell_state = model_out[1][1]
-        else:
-            torch_x = torch.from_numpy(np.asarray(curr_state)).float().to(device)
-            model_out = nn_model.forward(torch_x, bsize=1, time_step=1,
-                                         hidden_state = hidden_state,
-                                         cell_state = cell_state)
-            out = model_out[0]
-            action = int(torch.argmax(out[0]))
-            hidden_state = model_out[1][0]
-            cell_state = model_out[1][1]
+
+        torch_x = torch.from_numpy(np.asarray(curr_state)).float().to(device)
+        model_out = nn_model.forward(torch_x, bsize=1, time_step=1,
+                                        hidden_state = hidden_state,
+                                        cell_state = cell_state)
+        out = model_out[0]
+        action = int(torch.argmax(out[0]))
+        if action != 1:
+            print(action)
+        hidden_state = model_out[1][0]
+        cell_state = model_out[1][1]
 
         # update model fro next iteration
-        # print action
         next_state, reward, done, success = game.step(action)
         episode_reward += reward
-
-        local_memory.append((curr_state, action, reward, next_state))
         curr_state = next_state
 
-        # update target_model
-        if(total_steps % TARGET_UPDATE_FREQ) == 0:
-            target_model.load_state_dict(nn_model.state_dict())
-        if(total_steps % 10) == 0:
-            hidden_batch, cell_batch = nn_model.init_hidden_states(bsize = BATCH_SIZE)
-            batch = mem.gen_batch(bsize = BATCH_SIZE, time_step = TIME_STEP)
-
-            current_states = []
-            actions = []
-            rewards = []
-            next_states = []
-
-            for b in batch:
-                cs, ac, rw, ns = [],[],[],[]
-                for element in b:
-                    cs.append(element[0])
-                    ac.append(element[1])
-                    rw.append(element[2])
-                    ns.append(element[3])
-                current_states.append(cs)
-                actions.append(ac)
-                rewards.append(rw)
-                next_states.append(ns)
-
-            current_states = np.asarray(current_states)
-            actions = np.array(actions)
-            next_states = np.asarray(next_states)
-            rewards = np.array(rewards)
-
-            torch_cs = torch.from_numpy(current_states).float().to(device)
-            torch_ac = torch.from_numpy(actions).long().to(device)
-            torch_rw = torch.from_numpy(rewards).float().to(device)
-            torch_ns = torch.from_numpy(next_states).float().to(device)
-
-            Q_next,_ = target_model.forward(torch_ns, bsize = BATCH_SIZE, time_step=TIME_STEP, hidden_state = hidden_batch, cell_state = cell_batch)
-            Q_next_max,_ = Q_next.detach().max(dim=1)
-            
-            target_values = torch_rw[:,TIME_STEP-1] + (GAMMA * Q_next_max)
-
-            Q_s, _ = nn_model.forward(torch_cs, bsize = BATCH_SIZE, time_step = TIME_STEP, hidden_state = hidden_batch, cell_state = cell_batch)
-
-            Q_s_a = Q_s.gather(dim=1, index = torch_ac[:,TIME_STEP-1].unsqueeze(dim=1)).squeeze(dim=1)
-
-            loss = loss_fn(Q_s_a, target_values)
-
-            # save performance measure
-            loss_stat.append(loss.item())
-            # make previous gradient zero
-            optimizer.zero_grad()
-            loss.backward()
-            # update params
-            optimizer.step()
-
-            # Record history
-            episode_reward += reward
-            episode_loss += loss.item()
-        mem.add_episode(local_memory)
-        SummaryWriter.add_scalar('data/episode_reward', episode_reward, episode)
-        SummaryWriter.add_scalar('data/episode_loss', episode_loss, episode)
+        if reward != -1:
+            print(reward)
+        # if epsilon > FINAL_EPSILON:
+        #     epsilon -= (INITIAL_EPSILON - FINAL_EPSILON)/TOTAL_EPISODES 
+        # SummaryWriter.add_scalar('data/episode_reward', episode_reward, episode)
+        # SummaryWriter.add_scalar('data/episode_loss', episode_loss, episode)
 
         if done or success:
-            SummaryWriter.add_scalar('data/steps_per_episode', step_count, episode)
             if success:
-                if epsilon > FINAL_EPSILON:
-                    epsilon *= 0.9 
                 n_success += 1
                 SummaryWriter.add_scalar('data/cumulative_success', n_success, episode)
                 SummaryWriter.add_scalar('data/success', 1, episode)
             break
+    # if episode % 200 == 0:
+    #     torch.save(nn_model.state_dict(), 'LSTM_CKPT.pth')
+
+
+

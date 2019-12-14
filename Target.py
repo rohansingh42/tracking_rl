@@ -43,3 +43,7 @@ class Target(pygame.sprite.Sprite):
 			elif self.rect.centery >= (self.height-100) and self.rect.centerx > 100:		# Go left
 				self.rect.centerx -= self.stepSize
 				return
+			else:
+				self.rect.centerx += self.stepSize
+				# self.rect.centery += self.stepSize
+				return

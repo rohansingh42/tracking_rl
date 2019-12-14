@@ -10,7 +10,7 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
 class LidarPoint(pygame.sprite.Sprite):
-	def __init__(self, startX, startY, size=8, color=YELLOW, width=720, height=480):
+	def __init__(self, startX, startY, size=16, color=YELLOW, width=720, height=480):
 		pygame.sprite.Sprite.__init__(self)
 		self.color = color
 		self.size = size
