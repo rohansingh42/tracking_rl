@@ -13,7 +13,6 @@ class Obstacle(pygame.sprite.Sprite):
 	def __init__(self, obWidth, obHeight, startX, startY, color=BLACK, width=720, height=480):
 		pygame.sprite.Sprite.__init__(self)
 		self.color = color
-		self.size = size
 		self.startX = startX
 		self.startY = startY
 		self.currX = startX
@@ -35,4 +34,6 @@ class Obstacle(pygame.sprite.Sprite):
 		return [self.currX, self.currY, self.obWidth, self.obHeight]
 
 	def update(self):
+		self.rect.x = self.currX
+		self.rect.y = self.currY
 		return

@@ -100,7 +100,7 @@ print("\nAction space")
 if train == False:
 	epsilon = 0.0
 else:
-	epsilon = 0
+	epsilon = 0.2
 
 discount_factor = 0.99
 learning_rate = 0.001
@@ -114,7 +114,7 @@ reward_history = []
 # initialize model
 nn_model = model_network().to(device)
 if load_model == True:
-	nn_model.load_state_dict(torch.load('./models/checkpoint_final.pth'), strict=False)
+	nn_model.load_state_dict(torch.load('./models/checkpoint_final2.pth'), strict=False)
 if train == False:
 	nn_model.eval()
 else :
@@ -126,7 +126,7 @@ recent_reward=[]
 
 loss_fn =  nn.MSELoss() # nn.SmoothL1Loss()
 optimizer = optim.Adam(nn_model.parameters(), lr = learning_rate)
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size = 1, gamma = 0.9)
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size = 100, gamma = 0.9)
 
 model_path = './models/checkpoint_dqn_lstm.pth'
 
@@ -218,8 +218,8 @@ for episode in trange(NUM_EPISODES):
 			# print(episode_reward)
 			# decrease epsilon value as the number of successful runs increase
 			if gameSuccessFlag:
-				if epsilon > 0.1:
-					epsilon *= 0.95
+				if epsilon > 0.01:
+					epsilon *= 0.5
 					SummaryWriter.add_scalar('data/epsilon', epsilon, episode)
 
 				# adjust learning rate as model converges
